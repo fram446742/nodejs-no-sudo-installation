@@ -10,7 +10,7 @@ Within the install_node_local.sh file, paste the code from the file of this repo
 
 Save the file in nano by pressing Ctrl + X, then Y to confirm, and Enter to exit
 
-After pasting the code, grant execution permissions to the script using the chmod command:
+After saving the file, grant execution permissions to the script using the chmod command:
 
 ```bash
 chmod +x install_node_local.sh
