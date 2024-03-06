@@ -36,15 +36,15 @@ prompt_hide_folder() {
     case "$choice" in
     yes | YES | y | Y)
         # Rename the folder to make it hidden
-        mv $1 $2
-        $3 = $2
+        mv "$1" "$2"
+        eval "$3=\"$2\""
         ;;
     no | NO | n | N)
         echo "Keeping $1 folder visible."
         ;;
     *)
         echo "Invalid choice. Please enter yes or no."
-        prompt_hide_folder "$1" "$2"
+        prompt_hide_folder "$1" "$2" "$3"
         ;;
     esac
 }
