@@ -6,7 +6,9 @@ Begin by creating a shell script file named install_node_local.sh using the nano
 nano install_node_local.sh
 ```
 
-Within the install_node_local.sh file, paste the code from the repository you are referring to.
+Within the install_node_local.sh file, paste the code from the file of this repository.
+
+Save the file in nano by pressing Ctrl + X, then Y to confirm, and Enter to exit
 
 After pasting the code, grant execution permissions to the script using the chmod command:
 
