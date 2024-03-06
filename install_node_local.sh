@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Check if script is executed with sudo
+if [ "$(id -u)" != "0" ]; then
+    echo "This script must be run with sudo."
+    exit 1
+fi
+
 # Function to check if a command is available
 command_exists() {
     command -v "$1" >/dev/null 2>&1
@@ -31,6 +37,7 @@ prompt_hide_folder() {
     yes | YES | y | Y)
         # Rename the folder to make it hidden
         mv $1 $2
+        $3 = $2
         ;;
     no | NO | n | N)
         echo "Keeping $1 folder visible."
@@ -41,6 +48,10 @@ prompt_hide_folder() {
         ;;
     esac
 }
+
+n_directory="$HOME/n"
+
+node_directory="$HOME/nodejs"
 
 # Check if curl and grep are installed
 if ! command_exists curl || ! command_exists grep; then
@@ -59,15 +70,20 @@ fi
 # Continue with the rest of your script here
 echo "Both curl and grep are installed. Proceeding with the script..."
 
-# Check if ~/nodejs folder exists
-if [ -d ~/nodejs ]; then
+# Check if $HOME/nodejs folder exists
+if [ -d $HOME/nodejs ]; then
     prompt_clean_folder "~/nodejs" "~/nodejs"
+elif [ -d $HOME/.nodejs ]; then
+    prompt_clean_folder "~/.nodejs" "~/.nodejs"
 fi
 
 # Create nodejs directory in the home directory
-echo "Creating ~/nodejs directory..."
-mkdir -p ~/nodejs
-cd ~/nodejs
+if [ ! -d $HOME/nodejs ]; then
+    echo "Creating ~/nodejs directory..."
+    mkdir -p $HOME/nodejs
+fi
+
+cd $HOME/nodejs
 
 # Get the latest version of Node.js from the official website
 echo "Fetching the latest version of Node.js..."
@@ -78,36 +94,40 @@ echo "Downloading and extracting Node.js $NODE_VERSION..."
 wget https://nodejs.org/dist/latest/$NODE_VERSION
 tar xvf $NODE_VERSION
 
+# Prompt for hiding the ~/nodejs folder
+prompt_hide_folder "$HOME/nodejs" "$HOME/.nodejs" node_directory
+
 # Set environment variables for the latest version of Node.js
-export NODE_HOME=~/nodejs/$(basename $NODE_VERSION .tar.xz)
+export NODE_HOME=$node_directory/$(basename $NODE_VERSION .tar.xz)
 export PATH=$NODE_HOME/bin:$PATH
 
 # Update PATH in the current session
 echo "Updating PATH in the current session..."
-echo "export NODE_HOME=~/nodejs/$(basename $NODE_VERSION .tar.xz)" >>~/.bashrc
-echo "export PATH=\$NODE_HOME/bin:\$PATH" >>~/.bashrc
-source ~/.bashrc
+echo "export NODE_HOME=$node_directory/$(basename $NODE_VERSION .tar.xz)" >>$HOME/.bashrc
+echo "export PATH=\$NODE_HOME/bin:\$PATH" >>$HOME/.bashrc
+source $HOME/.bashrc
 
 # Display Node.js environment variables
 echo "NODE_HOME: $NODE_HOME"
 echo "PATH: $PATH"
 
-# Prompt for hiding the ~/nodejs folder
-prompt_hide_folder "~/nodejs" "~/.nodejs"
-
 # Check if ~/.n folder exists
-if [ -d ~/.n ]; then
-    prompt_clean_folder "~/.n" "~/.n"
+if [ -d $HOME/n ]; then
+    prompt_clean_folder "$HOME/n" "$HOME/n"
+elif [ -d $HOME/.n ]; then
+    prompt_clean_folder "$HOME/.n" "$HOME/.n"
 fi
 
-# Create .n directory in the home directory
-echo "Creating ~/.n directory..."
-mkdir -p ~/.n
+# Create n directory in the home directory
+if [ ! -d $HOME/n ]; then
+    echo "Creating ~/n directory..."
+    mkdir -p $HOME/n
+fi
 
 # Prompt for hiding the ~/.n folder
-prompt_hide_folder "~/n" "~/.n"
+prompt_hide_folder "$HOME/n" "$HOME/.n" n_directory
 
-export N_PREFIX=~/.n
+export N_PREFIX=$n_directory
 export PATH="$N_PREFIX/bin:$PATH"
 
 npm install -g n
@@ -123,14 +143,14 @@ done
 
 # Update .bashrc with 'n' environment variables
 echo "Updating .bashrc with 'n' environment variables..."
-echo "export N_PREFIX=~/.n" >>~/.bashrc
-echo "export PATH=\"\$N_PREFIX/bin:\$PATH\"" >>~/.bashrc
+echo "export N_PREFIX=$n_directory" >>$HOME/.bashrc
+echo "export PATH=\"\$N_PREFIX/bin:\$PATH\"" >>$HOME/.bashrc
 
 # Display Node.js versions installed
 echo "Installed Node.js versions:"
-ls -l ~/.n/versions/node
+ls -l $n_directory/versions/node
 
 # Update PATH in the current session
-source ~/.bashrc
+source $HOME/.bashrc
 
 echo "Node.js installation script completed."
