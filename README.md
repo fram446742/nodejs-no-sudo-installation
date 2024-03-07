@@ -1,4 +1,4 @@
-# nodejs-no-sudo-installation
+# nodejs-no-sudo-installation Ubuntu
 
 Begin by creating a shell script file named install_node_local.sh using the nano text editor:
 
